@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head lang="pl">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="jquery/jquery.min.js"></script>
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+    <script src="frameworks/angular.min.js"></script>
+    <script src="main.js"></script>
+    <script src="page.js"></script>
+    <link href="style.css" rel="stylesheet">
+</head>
+<body ng-app="forms" ng-controller="dataController">
+	<div id="results" ng-show="showRes===1">
+		<div>
+			<table class="table">
+				<tbody>
+				<tr>
+					<th colspan="2">Wyniki</th>
+				</tr>
+				<tr>
+					<td>Ilość punktów:</td>
+					<td>{{results.count}}</td>
+				</tr>
+				<tr>
+					<td>Ilość kombinacji:</td>
+					<td>{{results.ways}}</td>
+				</tr>
+				<tr>
+					<td>Czas obliczeń:</td>
+					<td>{{results.time}} ms.</td>
+				</tr>
+				<tr>
+					<td>Najkrótsza trasa:</td>
+					<td>{{results.way}}</td>
+				</tr>
+				</tbody>
+			</table>
+			<table class="table table-striped">
+				<tbody>
+					<tr>
+						<th>Ścieżki:</th>
+					</tr>
+					<tr ng-repeat="res in results.results"><td>{{res.pairs}}</td></tr>
+				</tbody>
+			</table>
+			<div class="form-group">
+				<button class="form-control" ng-click="showRes=0">Zamknij</button>
+			</div>
+		</div>
+	</div>
+	<div id="panel">
+        <div id="options" class="well">
+            <form class="form-horizontal" role="form">
+                <div class="form-group">
+                    <label for="inputWorkes" class="col-sm-2 control-label">Ilość rdzeni</label>
+                    <div class="col-sm-10">
+                        <input type="number" class="form-control" id="inputWorkes" ng-model="inps.workers">
+                    </div>
+                </div>
+            </form>
+	        <button class="btn btn-primary btn-lg btn-block" ng-click="calculate()">Oblicz</button>
+        </div>
+
+    </div>
+
+    <div id="data">
+	    <ul role="tablist" class="nav nav-tabs nav-justified">
+		    <li ng-class="{active: $first}" role="presentation" ng-repeat="type in types"><a ng-click="select($index)">{{type.name}}</a></li>
+	    </ul>
+
+	    <hr>
+
+        <div ng-show="inps.type.s == 0" ng-controller="manualPlaces">
+            <form class="form-inline" role="form">
+	            <div class="bs-callout bs-callout-info">
+		            <h4>Info</h4>
+		            Podaj liczbę punktów a następnie "dadaj" aby stworzyć listę ze współrzędnymi katezjańskimi.
+	            </div>
+
+	            <div class="form-group full-width">
+		            <div class="input-group">
+			            <input type="text" class="form-control" ng-model="count">
+			            <div class="input-group-btn">
+				            <button tabindex="-1" class="btn btn-success" type="button" ng-click="add()">Dadaj</button>
+			            </div>
+		            </div>
+		            <div class="input-group">
+			            <button class="btn btn-warning" type="button" ng-click="reset()"><span class="glyphicon glyphicon-repeat"></span> Reset</button>
+		            </div>
+		            <div class="input-group pull-right">
+			            <div class="clipboard">
+				            <input type="text" class="form-control" ng-model="clipboard" ng-change="readMem()" placeholder="wklej dane">
+			            </div>
+
+			            <span>  lub wybierz plik</span>
+			            <input type="file" class="btn" onchange="angular.element(this).scope().upload(this)">
+		            </div>
+	            </div>
+
+	            <hr>
+
+	            <div class="dataBox">
+		            <table class="table">
+			            <tbody>
+			            <tr ng-show="points.length>0">
+				            <th>Nr.</th><th>X</th><th>Y</th><th></th>
+			            </tr>
+			            <tr ng-repeat="point in points">
+				            <td class="tab_index">
+					            {{$index}}.
+				            </td>
+				            <td>
+					            <input type="text" ng-model="point.0">
+				            </td>
+				            <td>
+					            <input type="text" ng-model="point.1">
+				            </td>
+				            <td>
+					            <div class="input-group">
+						            <button class="btn btn-danger btn-xs" ng-click="delete($index)"><span class="glyphicon glyphicon-remove"></span></button>
+					            </div>
+				            </td>
+			            </tr>
+			            </tbody>
+		            </table>
+	            </div>
+            </form>
+        </div>
+        <div ng-show="inps.type.s == 1" ng-controller="manualMatrix">
+	        <form class="form-inline" role="form">
+				<div class="bs-callout bs-callout-info">
+					<h4>Info</h4>
+					Podaj liczbę punktów a następnie "dadaj" aby stworzyć macierz przejść między tymi punktami.
+				</div>
+
+				<div class="form-group full-width">
+					<div class="input-group">
+						<input type="text" class="form-control" ng-model="count">
+						<div class="input-group-btn">
+							<button tabindex="-1" class="btn btn-success" type="button" ng-click="add()">Dadaj</button>
+							<button tabindex="-1" class="btn btn-danger" type="button" ng-click="delete()">Usuń</button>
+						</div>
+					</div>
+					<div class="input-group">
+						<button class="btn btn-warning" type="button" ng-click="reset()"><span class="glyphicon glyphicon-repeat"></span> Reset</button>
+					</div>
+					<div class="input-group pull-right">
+						<div class="clipboard">
+							<input type="text" class="form-control" ng-model="clipboard" ng-change="readMem()" placeholder="wklej dane">
+						</div>
+
+						<span>  lub wybierz plik</span>
+						<input type="file" class="btn" onchange="angular.element(this).scope().upload(this)">
+					</div>
+		        </div>
+
+		        <hr>
+
+		        <div class="dataBox">
+			        <table class="table-bordered">
+				        <tbody>
+				        <tr>
+					        <td class="tab_index" ng-show="points.length>0">Nr.</td>
+					        <td class="tab_index" ng-repeat="row in points">{{$index}}.</td>
+				        </tr>
+				        <tr ng-repeat="row in points">
+					        <td class="tab_index">{{$index}}.</td>
+					        <td ng-repeat="col in points">
+						        <input type="text" placeholder="{{$parent.$index}} x {{$index}}" ng-disabled="$parent.$index == $index" ng-model="points[$parent.$index][$index]">
+					        </td>
+				        </tr>
+				        </tbody>
+			        </table>
+		        </div>
+            </form>
+        </div>
+    </div>
+	<div id="footer">
+		<span>Wykonanie Wszerad Martynowski</span>
+	</div>
+</body>
+</html>
