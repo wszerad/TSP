@@ -30,6 +30,11 @@ App.controller('dataController', ['$scope', function($scope) {
 	};
 
 	$scope.calculate = function(){
+		paths = [];
+		offList = {};
+		solutions = [];
+		solutionLow = Number.MAX_SAFE_INTEGER;
+
 		var type = $scope.inps.type.s,
 			data = $scope.points[type];
 
@@ -46,6 +51,8 @@ App.controller('dataController', ['$scope', function($scope) {
 			alert(e.messages);
 			return;
 		}
+
+		//console.log(paths);
 
 		start(paths, function(time, count, ways, results){
 			if(!results.length)
@@ -90,6 +97,9 @@ App.controller('manualPlaces', ['$scope', function($scope) {
 
 	$scope.readMem = function(){
 		var data = conversions.fromFilePlaces($scope.clipboard);
+
+		console.log(data);
+
 		for(var i=0; i<data.length; i++)
 			$scope.points[i] = data[i];
 
@@ -100,6 +110,8 @@ App.controller('manualPlaces', ['$scope', function($scope) {
 	$scope.upload = function(self){
 		var input = self,
 			reader = new FileReader();
+
+		$scope.points.splice(0, $scope.points.length);
 
 		reader.onload = function(){
 			var data = conversions.fromFilePlaces(reader.result);
@@ -149,6 +161,9 @@ App.controller('manualMatrix', ['$scope', function($scope) {
 
 	$scope.readMem = function(){
 		var data = conversions.fromFileMatrix($scope.clipboard);
+
+		console.log(data);
+
 		for(var i=0; i<data.length; i++)
 			$scope.points[i] = data[i];
 
@@ -159,6 +174,8 @@ App.controller('manualMatrix', ['$scope', function($scope) {
 	$scope.upload = function(self){
 		var input = self,
 			reader = new FileReader();
+
+		$scope.points.splice(0, $scope.points.length);
 
 		reader.onload = function(){
 			var data = conversions.fromFileMatrix(reader.result);
@@ -181,22 +198,28 @@ function factorial(n) {
 function start(data, cb){
 	var row = [],
 		col = [],
-		time = Date.now();
+		time = Date.now(),
+		pCopy = deepCopy(paths);
 
 	for(var i=0; i<paths.length; i++){
 		row[i] = -1;
 		col[i] = -1;
 	}
 
-	find4(deepCopy(paths), row, col, 0, 0, 0);
+	find4(pCopy, row, col, 0, 0, 0);
 	checkOffList();
+
+	if(!solutions.length) {
+		alert('Nie znaleziono rozwiązania, sprawdź wprowadzone dane');
+		return;
+	}
 
 	var sol = solutions.map(function(res){
 		res.pairs = fromPairs(res.pairs).join(' -> ');
 		return res;
 	});
 
-	cb(Date.now()-time, paths.length, factorial(paths.length-1), sol);
+	cb(Date.now()-time, paths.length, factorial(pCopy.length-1), sol);
 }
 
 var conversions = {
@@ -206,9 +229,20 @@ var conversions = {
 	fromFileMatrix: function(data){
 		data = this.clearComma(data);
 
-		data = data.split('\n').map(function(row){
-			return row.split(/[^\d\.\,]+/);
+		data = data.split(/\n/).map(function(row){
+			return row.split(/[^\w\.\,]+/);
 		});
+
+		if(data.length!=data[0].length){
+			var nData = [],
+				len = Math.sqrt(data[0].length);
+
+			for(var i=0; i<len; i++){
+				nData[i] = data[0].slice(i*len, i*len+len);
+			}
+
+			data = nData;
+		}
 
 		//this.fromFileMatrix(data);
 
@@ -227,6 +261,17 @@ var conversions = {
 		data = data.split('\n').map(function(row){
 			return row.split(/[^\w\.\,]+/);
 		});
+
+		if(data[0].length>2){
+			var nData = [],
+				len = (data[0].length/2);
+
+			for(var i=0; i<len; i++){
+				nData[i] = data[0].slice(i*2, i*2+2);
+			}
+
+			data = nData;
+		}
 
 		//this.fromFilePlaces(data);
 
@@ -262,13 +307,10 @@ var conversions = {
 				throw new Error('Number of column and rows must by the same!');
 
 			cols.forEach(function(dist, idxB){
-				if(idxA===idxB){
+				if(idxA===idxB || isNaN(dist)){
 					paths[idxA][idxB] = Number.MAX_SAFE_INTEGER;
 					return;
 				}
-
-				if(isNaN(dist))
-					throw new Error('Distance is not a number');
 
 				paths[idxA][idxB] = dist*1;
 			});

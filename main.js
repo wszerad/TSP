@@ -15,9 +15,19 @@ function checkDist(path){
 }
 
 function deepCopy(arr){
+	var len = arr.length,
+		ret = [];
+
+	for(var i=0; i<len; i++){
+		ret[i] = arr[i].slice();
+	}
+
+	return ret;
+
+	/*
 	return arr.map(function(sub){
 		return sub.slice();
-	});
+	});*/
 }
 
 function toPair(row, col){
@@ -87,6 +97,11 @@ function hamiltonCycle(pairs){
 		}
 	}
 
+	for(i=0; i<len; i++){
+		if(!was[i])
+			return false;
+	}
+
 	return true;
 }
 
@@ -109,30 +124,34 @@ function endTree2(paths, col, row, lowLimit, iter){
 		len = solutions.length,
 		pairs;
 
-
-	lowLimit += paths[x1][y1] + paths[x2][y2];
-
 	col = col.slice();
 	row = row.slice();
-	row[y1] = ++iter;
-	col[x1] = iter;
-	row[y2] = ++iter;
-	col[x2] = iter;
+
+	if(paths[x1][y1] + paths[x2][y2]>paths[x1][y2] + paths[x2][y1]){
+		lowLimit += paths[x1][y2] + paths[x2][y1];
+		row[y1] = ++iter;
+		col[x2] = iter;
+		row[y2] = ++iter;
+		col[x1] = iter;
+	} else {
+		lowLimit += paths[x1][y1] + paths[x2][y2];
+		row[y1] = ++iter;
+		col[x1] = iter;
+		row[y2] = ++iter;
+		col[x2] = iter;
+	}
 
 	pairs = toPair(row, col);
 
-	//console.log(pairs);
-	//if(!hamiltonCycle(pairs))
-	//	return;
-	//console.log('pass');
+	if(!hamiltonCycle(pairs))
+		return;
+	console.log(pairs);
 
 	if(len && solutions[0].limit>lowLimit || !len){
 		solutions = [];
 		solutionLow = lowLimit;
-	}else
+	} else if(solutions[0].limit<lowLimit)
 		return;
-
-	console.log(JSON.stringify(pairs));
 
 	solutions.push({
 		pairs: pairs,
@@ -167,9 +186,6 @@ function offTree2(paths, off, r, c, row, col, lowLimit, iter, rmod, cmod){
 	col = col.slice();
 	row = row.slice();
 	paths = deepCopy(paths);
-
-	//console.log('kuk');
-	//showPaths(paths, row, col);
 
 	if(off) {
 		lowLimit +=	rmod + cmod;
@@ -342,11 +358,36 @@ function find4(paths, row, col, lowLimit, iter){
 			}
 	}
 }
-/*
+
+
+/*	passed ok
+ [max, 12, 3, 45, 6],
+ [78, max, 90, 21, 3],
+ [5, 56, max, 23, 98],
+ [12, 6, 8, max, 34],
+ [3, 98, 3, 2, max]
+*/
+
+/* passed ok
+ [max, 3, 93, 13, 33, 9],
+ [4, max, 77, 42, 21, 16],
+ [45, 17, max, 36, 16, 28],
+ [39, 90, 80, max, 56, 7],
+ [28, 46, 88, 33, max, 25],
+ [3, 88, 18, 46, 92, max]
+ */
+
 function test(){
 	var max = Number.MAX_SAFE_INTEGER,
 		data = [
-			[max, 3, 93, 13, 33, 12],
+			/*
+			[max, 12, 3, 45, 6],
+			[78, max, 90, 21, 3],
+			[5, 56, max, 23, 98],
+			[12, 6, 8, max, 34],
+			[3, 98, 3, 2, max]*/
+
+			[max, 3, 93, 13, 33, 9],
 			[4, max, 77, 42, 21, 16],
 			[45, 17, max, 36, 16, 28],
 			[39, 90, 80, max, 56, 7],
@@ -366,6 +407,7 @@ function test(){
 	find4(data, row, col, 0, [], 0, 0);
 }
 
+/*
 function test2(){
 	var data = [
 		[1,2],
@@ -398,19 +440,18 @@ function test2(){
 
 	//console.log(paths);
 	find4(deepCopy(paths), row, col, 0, 0, 0);
-}
+}*/
 
-*/
 //console.time('1');
-//test2();
+//test();
 //checkOffList();
 //console.timeEnd('1');
 //console.log(solutions);
 //console.log('');
 
-/*
-solutions.forEach(function(sol){
-	console.log(sol);
-});*/
+
+//solutions.forEach(function(sol){
+//	console.log(sol);
+//});
 
 //console.log(hamiltonCycle([ [ 1, 0 ], [ 0, 3 ], [ 5, 1 ], [ 4, 2 ], [ 3, 4 ], [ 2, 5 ] ]));
