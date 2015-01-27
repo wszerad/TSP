@@ -44,7 +44,7 @@ function fromPairs(pairs){
 		curr;
 
 	for(var i=0; i<len; i++){
-		list.push(find);
+		list.push('C'+find);
 
 		for(var j=0; j<len; j++){
 			if(was[j])

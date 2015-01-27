@@ -2,7 +2,7 @@
 <html>
 <head lang="pl">
     <meta charset="UTF-8">
-    <title></title>
+    <title>TSP</title>
     <script src="jquery/jquery.min.js"></script>
     <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
     <script src="bootstrap/js/bootstrap.min.js"></script>
@@ -32,7 +32,7 @@
 					<td>{{results.time}} ms.</td>
 				</tr>
 				<tr>
-					<td>Najkrótsza trasa:</td>
+					<td>Długość optymalnej trasy:</td>
 					<td>{{results.way}}</td>
 				</tr>
 				</tbody>
@@ -40,9 +40,9 @@
 			<table class="table table-striped">
 				<tbody>
 					<tr>
-						<th>Ścieżki:</th>
+						<th>Optymalna ścieżka:</th>
 					</tr>
-					<tr ng-repeat="res in results.results"><td>{{res.pairs}}</td></tr>
+					<tr ng-repeat="res in results.results"><td class="center">{{res.pairs}}</td></tr>
 				</tbody>
 			</table>
 			<div class="form-group">
@@ -50,58 +50,67 @@
 			</div>
 		</div>
 	</div>
-	<div id="panel">
-        <div id="options" class="well">
-            <!--
-	        <form class="form-horizontal" role="form">
-                <div class="form-group">
-                    <label for="inputWorkes" class="col-sm-2 control-label">Ilość rdzeni</label>
-                    <div class="col-sm-10">
-                        <input type="number" class="form-control" id="inputWorkes" ng-model="inps.workers">
-                    </div>
-                </div>
-            </form>
-            -->
-	        <button class="btn btn-primary btn-lg btn-block" ng-click="calculate()">Oblicz</button>
-        </div>
-
-    </div>
 
     <div id="data">
 	    <ul role="tablist" class="nav nav-tabs nav-justified">
 		    <li ng-class="{active: $first}" role="presentation" ng-repeat="type in types"><a ng-click="select($index)">{{type.name}}</a></li>
 	    </ul>
 
-	    <hr>
-
         <div ng-show="inps.type.s == 0" ng-controller="manualPlaces">
             <form class="form-inline" role="form">
 	            <div class="bs-callout bs-callout-info">
-		            <h4>Info</h4>
-		            Podaj liczbę punktów a następnie "dodaj" aby stworzyć listę ze współrzędnymi katezjańskimi.
+		            <h3>Pomoc</h3>
+		            Podaj liczbę współrzędnych a następnie kliknij "Dadaj współrzędne" aby stworzyć listę modyfikowalną listę współrzędnych kartezjańskich. Możesz również wprowadzić dane w postaci pliku lub je wkleić (zobacz w pomocy format jaki muszą posiadać dane)
 	            </div>
 
 	            <div class="form-group full-width">
 		            <div class="input-group">
+			            <button class="btn btn-primary" ng-click="calculate()"><span class="glyphicon glyphicon-play"></span>Oblicz</button>
+		            </div>
+		            <div class="input-group space"></div>
+		            <div class="input-group">
 			            <input type="text" class="form-control" ng-model="count">
 			            <div class="input-group-btn">
-				            <button tabindex="-1" class="btn btn-success" type="button" ng-click="add()">Dadaj</button>
+				            <button tabindex="-1" class="btn btn-success" type="button" ng-click="add()">Dadaj współrzędne</button>
 			            </div>
 		            </div>
 		            <div class="input-group">
 			            <button class="btn btn-warning" type="button" ng-click="reset()"><span class="glyphicon glyphicon-repeat"></span> Reset</button>
 		            </div>
-		            <div class="input-group pull-right">
-			            <div class="clipboard">
-				            <input type="text" class="form-control" ng-model="clipboard" ng-change="readMem()" placeholder="wklej dane">
-			            </div>
-
-			            <span>  lub wybierz plik</span>
-			            <input type="file" class="btn" onchange="angular.element(this).scope().upload(this)">
-		            </div>
 	            </div>
 
 	            <hr>
+
+	            <div class="well import" ng-show="points.length===0">
+		            <table>
+			            <colgroup>
+				            <col style="width: 40%">
+				            <col style="width: 5%">
+				            <col style="width: 55%">
+			            </colgroup>
+			            <tr>
+				            <td>Wprowadz dane z pliku:</td>
+				            <td></td>
+				            <td>
+					            <div class="input-group">
+						            <input type="file" class="btn" onchange="angular.element(this).scope().upload(this)">
+					            </div>
+			                </td>
+			            </tr>
+			            <tr>
+				            <td colspan="2"></td>
+			            </tr>
+			            <tr>
+				            <td> lub schowka systemowego:</td>
+				            <td></td>
+				            <td>
+					            <div class="input-group">
+						            <input type="text" class="form-control" ng-model="clipboard" ng-change="readMem()" placeholder="wklej dane">
+					            </div>
+				            </td>
+			            </tr>
+		            </table>
+	            </div>
 
 	            <div class="dataBox">
 		            <table class="table">
@@ -111,7 +120,7 @@
 			            </tr>
 			            <tr ng-repeat="point in points">
 				            <td class="tab_index">
-					            {{$index}}.
+					            C{{$index}}.
 				            </td>
 				            <td>
 					            <input type="text" ng-model="point.0">
@@ -133,42 +142,69 @@
         <div ng-show="inps.type.s == 1" ng-controller="manualMatrix">
 	        <form class="form-inline" role="form">
 				<div class="bs-callout bs-callout-info">
-					<h4>Info</h4>
-					Podaj liczbę punktów a następnie "dodaj" aby stworzyć macierz przejść między tymi punktami.
+					<h3>Pomoc</h3>
+					Podaj liczbę stopni macierzy a następnie kliknij "Dadaj stopień" aby utworzyć modyfikowalną macierz podanego stopnia. Możesz również wprowadzić dane w postaci pliku lub je wkleić (zobacz w pomocy format jaki muszą posiadać dane)
 				</div>
 
 				<div class="form-group full-width">
 					<div class="input-group">
+						<button class="btn btn-primary " ng-click="calculate()"><span class="glyphicon glyphicon-play"></span>Oblicz</button>
+					</div>
+					<div class="input-group space"></div>
+					<div class="input-group">
 						<input type="text" class="form-control" ng-model="count">
 						<div class="input-group-btn">
-							<button tabindex="-1" class="btn btn-success" type="button" ng-click="add()">Dadaj</button>
+							<button tabindex="-1" class="btn btn-success" type="button" ng-click="add()">Dadaj stopień</button>
 							<button tabindex="-1" class="btn btn-danger" type="button" ng-click="delete()">Usuń</button>
 						</div>
 					</div>
 					<div class="input-group">
 						<button class="btn btn-warning" type="button" ng-click="reset()"><span class="glyphicon glyphicon-repeat"></span> Reset</button>
 					</div>
-					<div class="input-group pull-right">
-						<div class="clipboard">
-							<input type="text" class="form-control" ng-model="clipboard" ng-change="readMem()" placeholder="wklej dane">
-						</div>
-
-						<span>  lub wybierz plik</span>
-						<input type="file" class="btn" onchange="angular.element(this).scope().upload(this)">
-					</div>
 		        </div>
 
 		        <hr>
+
+		        <div class="well import" ng-show="points.length===0">
+			        <table>
+				        <colgroup>
+					        <col style="width: 40%">
+					        <col style="width: 5%">
+					        <col style="width: 55%">
+				        </colgroup>
+				        <tr>
+					        <td>Wprowadz dane z pliku:</td>
+					        <td></td>
+					        <td>
+						        <div class="input-group">
+							        <input type="file" class="btn" onchange="angular.element(this).scope().upload(this)">
+						        </div>
+					        </td>
+				        </tr>
+				        <tr>
+					        <td colspan="2"></td>
+				        </tr>
+				        <tr>
+					        <td> lub schowka systemowego:</td>
+					        <td></td>
+					        <td>
+						        <div class="input-group">
+							        <input type="text" class="form-control" ng-model="clipboard" ng-change="readMem()" placeholder="wklej dane">
+						        </div>
+					        </td>
+				        </tr>
+			        </table>
+		        </div>
 
 		        <div class="dataBox">
 			        <table class="table-bordered">
 				        <tbody>
 				        <tr>
 					        <td class="tab_index" ng-show="points.length>0">Nr.</td>
-					        <td class="tab_index" ng-repeat="row in points">{{$index}}.</td>
+					        <td class="tab_index" ng-repeat="row in points">C{{$index}}.</td>
 				        </tr>
 				        <tr ng-repeat="row in points">
-					        <td class="tab_index">{{$index}}.</td>
+					        <td class="tab_index">C{{$index}}.</td>
 					        <td ng-repeat="col in points">
 						        <input type="text" placeholder="{{$parent.$index}} x {{$index}}" ng-disabled="$parent.$index == $index" ng-model="points[$parent.$index][$index]">
 					        </td>
@@ -178,9 +214,39 @@
 		        </div>
             </form>
         </div>
+	    <div ng-show="inps.type.s == 2" class="info">
+		    </br>
+		    <h3>Wybór typu danych</h3>
+		    <p>Wybierz jeden z możliwych typów wprowadzania danych klikając na odpowiednią zakładkę (zakładki znajdują się powyżej /\).</p>
+		    <ul>
+			    <li>Macierz odległości - najbardziej uniwersalny sposób wprowadzania danych. W macierz kwadratową wprowadza się odległości między punktami.</li>
+			    <li>Współrzędne kartezjańskie - w tym wariancie podaje się współrzędne X i Y punktów np. jak w przypadku mapy </li>
+		    </ul>
+		    </br>
+		    <h3>Typy danych wejściowych</h3>
+		    <p>Aplikacja dopuszcza kilka metod wprowadzania danych. Można je wprowadzać bezpośrednio z poziomu aplikacji, importować z pliku bądź wklejać.</p>
+		    </br>
+		    <h3>Wprowadzanie ręczne</h3>
+		    <p>Aby wprowadzić dane ręcznie podaj w polu wejściowym (znajduje się obok zielonego przycisku dodaj) stopień macierz bądź liczbę punktów w zależności o typu wprowadzanych danych (patrz <b>Wybór typu danych</b>).</p>
+		    </br>
+		    <h3>Import z pliku</h3>
+			<p>Plik może mieć dowolne rozszerzenie ważna jest jego struktura wewnętrzna. Każdy wiersz musi zaczynać się od nowej linii, natomiast separatorem kolumny może być dowolny znak nie będący cyfrą, literą, znakiem podkreślenia(_), przecinkiem lub kropką.</p>
+		    <p>Przykładowa macierz:</p>
+		    <pre style="width: 500px;">
+			    NaN 12 23.34
+			    0   NAN 234
+			    21,2 423 nan
+		    </pre>
+		    <p>Jest to przykład prawidłowo sformatowanej macierzy 3x3 (kropka i przecinek mogą być stosowane zamiennie), trzeba pamiętać iż odległości znajdujące się na przekątnej (NaN) nie mają znaczenia z definicji problemu.</p>
+		    </br>
+		    <h3>Wklejanie</h3>
+		    <p>Format danych musi być jednakowy jak w przypadku importu z pliku. Można natomiast kopiować dane bezpośrednio z arkuszy kalkulacyjnych czy tabeli internetowych.</p><p><b>Kopiowanie z tabeli plików tekstowych takich jak MS Word czy OO Writer najprawdopodobniej nie zadziała!</b></p>
+	        <h3>Wynik</h3>
+		    <p>Wynikiem obliczeń jest <b>Optymalna ścieżka</b> będący cyklem Hamiltona co oznacza, że z ostatniego punktu wracamy do pierwszego z podanych zataczając pętle. Należy zwrócić uwagę, że punkty numerowane są od 0.</p>
+	    </div>
     </div>
 	<div id="footer">
-		<span>Wykonanie Wszerad Martynowski</span>
+		<span>Autor <a href="mailto:wszerad91@gmail.com" target="_top">W. Martynowski</a> dla Politechniki Krakowskiej</span>
 	</div>
 </body>
 </html>

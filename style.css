@@ -1,3 +1,8 @@
+body{
+	font-family: "Helvetica Neue",​Helvetica,​Arial,​sans-serif;
+	font-size: 16px;
+}
+
 #panel{
 	position: absolute;
 	width: 260px;
@@ -6,14 +11,45 @@
 }
 
 #data{
-	padding-left: 300px;
-	padding-top: 20px;
+	padding: 20px;
 	position: relative;
 	width: 100%;
 }
 
 #data > div{
 	margin-top: 20px;
+}
+
+.space{
+	width: 60px;
+}
+
+.nav a{
+	background-color: lightgrey;
+	margin-right: 20px!important;
+}
+
+.info h3{
+	margin-left: -8px;
+}
+
+.info{
+	margin: 0 auto;
+	max-width: 880px;
+}
+
+h3{
+	margin-top: 8px;
+}
+
+.import{
+	width: 600px;
+	padding: 30px;
+	margin: 80px auto 0;
+}
+
+.import tr td:nth-child(0){
+	text-align: right;
 }
 
 #data .dataBox{
@@ -55,8 +91,12 @@ th{
 	float: right;
 }
 
+.center{
+	text-align: center;
+}
+
 .table{
-	width: auto!important;
+	width: 100%;
 }
 
 .table-bordered td {

@@ -12,9 +12,9 @@ App.controller('dataController', ['$scope', function($scope) {
 	$scope.showRes = 0;
 
 	$scope.types = [
+		{name: 'Instrukcja', s: 2},
+		{name: 'Macierz odległości', s: 1},
 		{name: 'Współrzędne karteziańskie', s: 0},
-		{name: 'Macierz ścieżek', s: 1}/*,
-		{name: 'Lista ścieżek', s: false}*/
 	];
 
 	$scope.inps = {
@@ -48,11 +48,10 @@ App.controller('dataController', ['$scope', function($scope) {
 					break;
 			}
 		} catch (e){
-			alert(e.messages);
+			console.log(e);
+			alert(e.message);
 			return;
 		}
-
-		//console.log(paths);
 
 		start(paths, function(time, count, ways, results){
 			if(!results.length)
@@ -98,12 +97,9 @@ App.controller('manualPlaces', ['$scope', function($scope) {
 	$scope.readMem = function(){
 		var data = conversions.fromFilePlaces($scope.clipboard);
 
-		console.log(data);
-
 		for(var i=0; i<data.length; i++)
 			$scope.points[i] = data[i];
 
-		//$scope.$digest();
 		$scope.clipboard = '';
 	};
 
@@ -215,7 +211,7 @@ function start(data, cb){
 	}
 
 	var sol = solutions.map(function(res){
-		res.pairs = fromPairs(res.pairs).join(' -> ');
+		res.pairs = fromPairs(res.pairs).join(' -- ');
 		return res;
 	});
 
@@ -244,17 +240,8 @@ var conversions = {
 			data = nData;
 		}
 
-		//this.fromFileMatrix(data);
-
 		return data;
 	},
-	/*fromFilePaths: function(data){
-		data = this.clearComma(data);
-
-		return this.fromPaths(data.split('\n').map(function(row){
-			return row.split(/[^\w\.\,]+/);
-		}));
-	},*/
 	fromFilePlaces: function(data){
 		data = this.clearComma(data);
 
@@ -273,12 +260,15 @@ var conversions = {
 			data = nData;
 		}
 
-		//this.fromFilePlaces(data);
-
 		return data;
 	},
 	fromPlaces: function(cords){
 		paths = [];
+
+		cords = cords.map(function(point){
+			console.log(point);
+			return point.map(function(cord){return String(cord).replace(',','.')*1});
+		});
 
 		cords.forEach(function(pointA, idxA){
 			paths[idxA] = [];
@@ -294,7 +284,6 @@ var conversions = {
 			});
 		});
 	},
-	/*fromPaths: function(data){},*/
 	fromMatrix: function(rows){
 		var len = rows.length;
 
@@ -312,7 +301,7 @@ var conversions = {
 					return;
 				}
 
-				paths[idxA][idxB] = dist*1;
+				paths[idxA][idxB] = String(dist).replace(',','.')*multipler;
 			});
 		});
 	}
